@@ -1,0 +1,12 @@
+{
+  "symbols": [
+    {
+      "path": "asdf.jpg",
+      "command": "follow"
+    },
+    {
+      "path": "fda.jpg",
+      "command": "stop"
+    }
+  ]
+}
