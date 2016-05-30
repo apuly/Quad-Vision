@@ -5,8 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>a5558739-f70d-4a89-84c3-0edb577c7441</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>Controller.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -45,6 +44,9 @@
     <Compile Include="CommandManager.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Commands.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Controller.py">
       <SubType>Code</SubType>
     </Compile>
@@ -52,6 +54,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Item.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Recognition.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Sensor.py">
@@ -64,6 +69,17 @@
   <ItemGroup>
     <Content Include="actions.json" />
     <Content Include="symbols.json" />
+    <Content Include="Symbols\arrowB.jpg" />
+    <Content Include="Symbols\arrowGo.jpg" />
+    <Content Include="Symbols\arrowL.jpg" />
+    <Content Include="Symbols\arrowL45.jpg" />
+    <Content Include="Symbols\arrowR.jpg" />
+    <Content Include="Symbols\arrowR45.jpg" />
+    <Content Include="Symbols\arrowStop.jpg" />
+    <Content Include="Symbols\arrowT.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Symbols\" />
   </ItemGroup>
   <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
   <Import Condition="!Exists($(PtvsTargetsFile))" Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

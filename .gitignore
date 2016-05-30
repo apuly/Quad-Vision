@@ -234,3 +234,7 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+#Visual studio project files
+*.pyproj
+*.sln

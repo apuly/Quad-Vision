@@ -1,12 +1,16 @@
 {
   "symbols": [
     {
-      "path": "asdf.jpg",
-      "command": "follow"
+      "path": "Symbols/arrowB.jpg",
+      "command": "ball"
     },
     {
-      "path": "fda.jpg",
-      "command": "stop"
+      "path": "Symbols/ArrowGo.jpg",
+      "command": "go"
+    },
+    {
+      "path": "Symbols/ArrowL.jpg",
+      "command": "left"
     }
   ]
 }
