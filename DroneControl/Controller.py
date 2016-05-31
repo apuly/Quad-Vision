@@ -13,16 +13,16 @@ import time
 import cv2
 import sys
 
-#class DistanceSensorData(DistanceSensor):
-#    def __init__(self, *args):
-#        super(DistanceSensorData, self).__init__()
-#        self.value = None
-#        self.dataUpdateThread = threading.Thread(target = self.updateData)
-#        self.dataUpdateThread.start()
-#    def updateData(self):
-#        while True:
-#            self.value = self.read()
-#            time.sleep(0.05)
+class DistanceSensorData(DistanceSensor):
+    def __init__(self, trigPin, echoPin):
+        super(DistanceSensorData, self).__init__(trigPin, echoPin)
+        self.value = None
+        self.dataUpdateThread = threading.Thread(target = self.updateData)
+        self.dataUpdateThread.start()
+    def updateData(self):
+        while True:
+            self.value = self.read()
+            time.sleep(0.05)
 
 
 class CameraData(Camera):
@@ -59,21 +59,8 @@ class Controller(object):
         self.commandThread = threading.Thread(target = self.commandHandler)
         self.commandThread.start()
 
-        self.currentCommand = 'follow'
-        sleep(3)
-        self.currentCommand = 'stop'
-        sleep(1)
-        #self.compareThread = threading.Thread(target = self.compareSymbols)
-        #self.compareThread.start()
-
-        #while True:
-        #    cv2.imshow('frame', self.cam.image)
-        #    cv2.imshow('frame2', self.symbolList[0].image)
-        #    if cv2.waitKey(1) & 0xFF == ord('q'):
-        #        break
-
-        
-
+        self.symbolThread = threading.Thread(target = self.compareSymbols)
+        self.compareSymbols.start()
             
             
         
@@ -88,7 +75,7 @@ class Controller(object):
                 filteredDiffs = [diff for diff in diffs if diff is not None]
                 index = diffs.index(min(filteredDiffs))
                 detectedSymbol = self.symbolList[index]
-                print detectedSymbol.command
+                self.currentCommand = detectedSymbol.command
             
     def commandHandler(self):
         while self.currentCommand is None: pass
