@@ -1,4 +1,5 @@
 ﻿from CommandManager import CommandManager
+from pyMultiwii import MultiWii
 from ActionManager import ActionManager
 from Action import Action
 from Camera import Camera
@@ -13,42 +14,72 @@ import time
 import cv2
 import sys
 
-class DistanceSensorData(DistanceSensor):
-    def __init__(self, trigPin, echoPin):
-        super(DistanceSensorData, self).__init__(trigPin, echoPin)
-        self.value = None
-        self.dataUpdateThread = threading.Thread(target = self.updateData)
-        self.dataUpdateThread.start()
-    def updateData(self):
-        while True:
-            self.value = self.read()
-            time.sleep(0.05)
-
-
 class CameraData(Camera):
     def __init__(self, *args):
         super(CameraData, self).__init__()
         self.image = None
         self.timeStamp = time.time()
         self.updateImageThread = threading.Thread(target = self.updateImage)
-        self.updateImageThread.start()
 
     def updateImage(self):
         while True:
             self.image = self.read()[1]
             self.timeStamp = time.time()
             time.sleep(0.05)
+    
+    def start(self):
+        self.updateImageThread.start()
+
+
+class heightControl(object):
+    def __init__(self):
+        self._distance = DistanceSensor()
+        self._targetHeight = None
+        self._speed = None
+
+    def start(self):
+        self._thread = threading.Thread(target = self.updateSpeed)
+        self._thread.daemon = True
+        self._thread.start()
+
+    def updateSpeed(self):
+        while self._targetHeight is None:
+            pass
+        while True:
+            speed = (self._targetHeight - self._distance.read()) * 10
+            if speed > 300:
+                speed = 300
+            elif speed < -300:
+                speed = -300
+            self._speed = speed
+
+
+    @property
+    def speed(self):
+        return self._speed
+
+    @property
+    def target(self):
+        return self._targetHeight
+
+    @target.setter
+    def target(self, x):
+        self._targetHeight = x
+        
+
+
 
 class Controller(object):
     def __init__(self):
         self.cam = CameraData()
-        #self.distance = DistanceSensorData(trigpin, echopin)
-        self.distance = 8
+        self.distance = DistanceSensorData(trigpin, echopin)
         self.cmdManager = CommandManager()
         self.actionManager = ActionManager()
+        self.heightController = heightControl()
         #self.recog = Recognition(self.cam)
         self.symbolList = []
         self.currentCommand = None
+        self.board = MultiWii('/dev/ttyUSB0')
 
         self.loadActions()
         self.loadCommands()
@@ -62,6 +93,9 @@ class Controller(object):
     def start(self):
         self.symbolThread.start()
         self.commandThread.start()
+
+        self.distance.start()
+        self.cam.start()
             
         
     def compareSymbols(self):
@@ -99,14 +133,14 @@ class Controller(object):
         with open('actions.json') as data_file:    
             actionJson = json.load(data_file)                              #opens JSON file with action data
         for actions in actionJson['actions']:                               
-            tempAction = Action(actions['binder'], actions['data'])         #creates actions using data
+            tempAction = Action(actions['binder'], actions['data'], self.board, self.heightController)         #creates actions using data
             self.actionManager.addItem(tempAction)                          #loads data into action manager
 
     def loadCommands(self):
         from Command import Command
         commands = [cls for cls in vars()['Command'].__subclasses__()]      #gets all classes that extends command class
         for command in commands:
-            self.cmdManager.addItem(command(self.actionManager, self.cam, self.distance))       #initiallise commands and add them to command manager
+            self.cmdManager.addItem(command(self.actionManager, self.cam, self.distance, self.heightController))       #initiallise commands and add them to command manager
 
     def loadSymbols(self):                                                  #loads symbols into symbol list
         with open('symbols.json') as data_file:    
