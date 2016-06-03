@@ -57,11 +57,11 @@ class Controller(object):
         time.sleep(1)
 
         self.commandThread = threading.Thread(target = self.commandHandler)
-        self.commandThread.start()
-
         self.symbolThread = threading.Thread(target = self.compareSymbols)
-        self.compareSymbols.start()
             
+    def start(self):
+        self.symbolThread.start()
+        self.commandThread.start()
             
         
     def compareSymbols(self):

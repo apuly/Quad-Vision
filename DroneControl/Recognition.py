@@ -1,4 +1,4 @@
-import cv2
+﻿import cv2
 import numpy
 from time import time
 from threading import Thread
@@ -10,6 +10,8 @@ class Recognition(object):
         self.cam = camera
 
         self.processThread = Thread(target = self.process)
+
+    def start(self):
         self.processThread.start()
 
     def process(self):
