@@ -14,12 +14,65 @@ import time
 import cv2
 import sys
 
+class RCData(self):
+    MIN = 1000
+    MAX = 2000
+    
+    def __init__(self):
+        self._yaw = 1500
+        self._pitch = 1500
+        self._roll = 1500
+        self._throttle = 1000
+
+    @property
+    def yaw(self):
+        return self._yaw
+    @yaw.setter
+    def yaw(self, x):
+        if MIN > x > MAX:
+            raise Exception("RC value not in range")
+        else:
+            self._yaw = x
+
+    @property
+    def pitch(self):
+        return self._pitch
+    @pitch.setter
+    def pitch(self, x):
+        if MIN > x > MAX:
+            raise Exception("RC value not in range")
+        else:
+            self._pitch = x
+
+    @property
+    def roll(self):
+        return self._roll
+    @roll.setter
+    def roll(self, x):
+        if MIN > x > MAX:
+            raise Exception("RC value not in range")
+        else:
+            self._roll = x
+
+    @property
+    def throttle(self):
+        return self._throttle
+    @throttle.setter
+    def yaw(self, x):
+        if MIN > x > MAX:
+            raise Exception("RC value not in range")
+        else:
+            self._throttle = x
+
+    def toArray(self):
+        return [self._pitch, self._roll, self._yaw, self._throttle]
+
+
 class CameraData(Camera):
     def __init__(self, *args):
         super(CameraData, self).__init__()
         self.image = None
         self.timeStamp = time.time()
-        self.updateImageThread = threading.Thread(target = self.updateImage)
 
     def updateImage(self):
         while True:
@@ -28,14 +81,15 @@ class CameraData(Camera):
             time.sleep(0.05)
     
     def start(self):
-        self.updateImageThread.start()
+        self._updateImageThread = threading.Thread(target = self.updateImage)
+        self._updateImageThread.start()
 
 
 class heightControl(object):
-    def __init__(self):
+    def __init__(self, rcData):
         self._distance = DistanceSensor()
         self._targetHeight = None
-        self._speed = None
+        self._rc = rcData
 
     def start(self):
         self._thread = threading.Thread(target = self.updateSpeed)
@@ -51,13 +105,8 @@ class heightControl(object):
                 speed = 300
             elif speed < -300:
                 speed = -300
-            self._speed = speed
-
-
-    @property
-    def speed(self):
-        return self._speed
-
+            rcData.throttle = speed
+            
     @property
     def target(self):
         return self._targetHeight
@@ -71,11 +120,11 @@ class heightControl(object):
 
 class Controller(object):
     def __init__(self):
+        self.rcData = RCData()
         self.cam = CameraData()
-        self.distance = DistanceSensorData(trigpin, echopin)
         self.cmdManager = CommandManager()
         self.actionManager = ActionManager()
-        self.heightController = heightControl()
+        self.heightController = heightControl(self.rcData)
         #self.recog = Recognition(self.cam)
         self.symbolList = []
         self.currentCommand = None
@@ -86,16 +135,19 @@ class Controller(object):
         self.loadSymbols()
 
         time.sleep(1)
-
+    
+    def start(self):
         self.commandThread = threading.Thread(target = self.commandHandler)
         self.symbolThread = threading.Thread(target = self.compareSymbols)
-            
-    def start(self):
         self.symbolThread.start()
         self.commandThread.start()
 
         self.distance.start()
         self.cam.start()
+
+        while True:
+            self.board.sendCMD(8, MultiWii.SEND_RAW_RC, self.rcData.toArray())
+            time.sleep(0.1)
             
         
     def compareSymbols(self):
@@ -122,7 +174,6 @@ class Controller(object):
                 if commandThread is not None:
                     self.cmdManager.stopCommand()
                     while commandThread.isAlive():
-                        #print commandThread.isAlive()
                         pass
                 commandThread = threading.Thread(target = self.cmdManager.execute, args = (self.currentCommand,))
                 commandThread.start()
@@ -133,14 +184,14 @@ class Controller(object):
         with open('actions.json') as data_file:    
             actionJson = json.load(data_file)                              #opens JSON file with action data
         for actions in actionJson['actions']:                               
-            tempAction = Action(actions['binder'], actions['data'], self.board, self.heightController)         #creates actions using data
+            tempAction = Action(actions['binder'], actions['data'], self.rcData)         #creates actions using data
             self.actionManager.addItem(tempAction)                          #loads data into action manager
 
     def loadCommands(self):
         from Command import Command
         commands = [cls for cls in vars()['Command'].__subclasses__()]      #gets all classes that extends command class
         for command in commands:
-            self.cmdManager.addItem(command(self.actionManager, self.cam, self.distance, self.heightController))       #initiallise commands and add them to command manager
+            self.cmdManager.addItem(command(self.actionManager, self.cam, self.heightController))       #initiallise commands and add them to command manager
 
     def loadSymbols(self):                                                  #loads symbols into symbol list
         with open('symbols.json') as data_file:    

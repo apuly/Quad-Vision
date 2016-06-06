@@ -1,12 +1,11 @@
 ﻿from Item import Item
 
 class Command(Item):
-    def __init__(self, actionHandler, camera, distance, height):
+    def __init__(self, actionHandler, camera, height):
         self.camera = camera
-        self.distance = distance
         self.action = actionHandler
         self.height = height
-        self.runningFlag = False
+        self.runningFlag = True
         
     def stop(self):
         self.runningFlag = False
