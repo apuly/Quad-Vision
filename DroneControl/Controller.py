@@ -87,7 +87,7 @@ class CameraData(Camera):
 
 class heightControl(object):
     def __init__(self, rcData):
-        self._distance = DistanceSensor()
+        self._distance = DistanceSensor(0,0,0)
         self._targetHeight = None
         self._rc = rcData
 

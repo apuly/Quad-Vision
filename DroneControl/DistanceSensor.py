@@ -1,35 +1,19 @@
 ﻿from Sensor import Sensor
 import time
-import RPi.GPIO as GPIO
+import Adafruit_GPIO.SPI as SPI
+import Adafruit_MCP3008
 
 class DistanceSensor(Sensor):
-    def __init__(self, triggerPin, echoPin):
-        self.trigPin = triggerPin
-        self.echoPin = echoPin
-        GPIO.setwarngins(False)
+    SPI_PORT = 0
+    SPI_DEVICE = 0
 
-        GPIO.setup(self.trigPin, GPIO.OUT)
-        GPIO.setup(self.echoPin, GPIO.IN)
-        GPIO.output(self.trigPin, GPIO.LOW)
-        time.sleep(0.3) #needed to prevent sensor from crashing
-        
+    def __init__(self, spi_port, spi_device, channel):
+        mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(spi_port, spi_device)
 
     def read(self):     #reads value from sensor
-        GPIO.output(self.trigPin, True) #sends a 10Us pulse to the trigger pin of the sensor to start reading
-        time.sleep(0.00001)                 
-        GPIO.output(self.trigPin, False)
+        value = Adafruit_MCP3008.read_adc(channel)
+        height = 100 + (1023 - value) * 0.44
+        return height
 
-        while GPIO.input(self.echoPin) == 0:        #wait till the sensor starts reading
-            pass
-        startPulseTime = time.time()                #get start time when it does
-
-        while GPIO.input(self.echoPin) == 1:        #wait for the sensor to stop reading
-            pass
-        endPulseTime = time.time()                  #get end time when it does
-
-        timepassed = endPulseTime - startPulseTime  #calculate the time between trigger and echo
-
-        distance = timepassed * 17000               #convert time to (somewhat) centimeters
-        return distance
 
    
