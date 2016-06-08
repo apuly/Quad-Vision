@@ -60,9 +60,6 @@ class Recognition(object):
         else:
             return diff
 
-   
-
-
     def processImage(self, img1):       #search for squares in img1, compares content of square with img2
         cv2.imshow('main', img1)
         grayImg = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)                #returns amount of white pixels
@@ -75,7 +72,7 @@ class Recognition(object):
 
         im2, contours, hierarchy = cv2.findContours(canny_output, cv2.RETR_TREE,\
             cv2.CHAIN_APPROX_SIMPLE)
-
+        
         for i in range(len(contours)):
             approxRect = cv2.approxPolyDP(contours[i], cv2.arcLength(contours[i], True) * 0.05, True)
             #print(len(approxRect))
