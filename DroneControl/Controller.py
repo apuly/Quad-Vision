@@ -9,6 +9,7 @@ from Command import Command
 from Commands import *
 from Recognition import Recognition
 import json
+import Load
 import threading
 import time
 import cv2
@@ -114,9 +115,6 @@ class heightControl(object):
     @target.setter
     def target(self, x):
         self._targetHeight = x
-        
-
-
 
 class Controller(object):
     def __init__(self):
@@ -133,6 +131,9 @@ class Controller(object):
         self.loadActions()
         self.loadCommands()
         self.loadSymbols()
+        self.Load.loadAction()
+        self.Load.loadCommands()
+        self.Load.loadSymbols()
 
         time.sleep(1)
     
@@ -177,29 +178,6 @@ class Controller(object):
                         pass
                 commandThread = threading.Thread(target = self.cmdManager.execute, args = (self.currentCommand,))
                 commandThread.start()
-                
- 
-
-    def loadActions(self):                                                  #loads actions into actionmanager   
-        with open('actions.json') as data_file:    
-            actionJson = json.load(data_file)                              #opens JSON file with action data
-        for actions in actionJson['actions']:                               
-            tempAction = Action(actions['binder'], actions['data'], self.rcData)         #creates actions using data
-            self.actionManager.addItem(tempAction)                          #loads data into action manager
-
-    def loadCommands(self):
-        from Command import Command
-        commands = [cls for cls in vars()['Command'].__subclasses__()]      #gets all classes that extends command class
-        for command in commands:
-            self.cmdManager.addItem(command(self.actionManager, self.cam, self.heightController))       #initiallise commands and add them to command manager
-
-    def loadSymbols(self):                                                  #loads symbols into symbol list
-        with open('symbols.json') as data_file:    
-            symbolsJson = json.load(data_file)                               #opens JSON file with symbol data
-        for symbolData in symbolsJson['symbols']:
-            _, image = cv2.threshold(cv2.imread(symbolData['path'], cv2.IMREAD_GRAYSCALE), 100, 255, 0)
-            self.symbolList.append(Symbol(image, symbolData['command'])) #reads data from json, loads into symbol list
-            
 
 if __name__ == '__main__':
     control = Controller()
