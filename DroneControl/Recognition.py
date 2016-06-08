@@ -6,6 +6,7 @@ from threading import Thread
 class Recognition(object):
     def __init__(self, camera):
         self.timestamp = None
+        self.preProcessing = None
         self.processedImage = None
         self.cam = camera
 
@@ -60,18 +61,22 @@ class Recognition(object):
         else:
             return diff
 
-    def processImage(self, img1):       #search for squares in img1, compares content of square with img2
-        cv2.imshow('main', img1)
-        grayImg = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)                #returns amount of white pixels
+    def preProcessing(self):
+        img1 = self.cam.read()
+        grayImg = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)                #returns amount of white pixels Pre
     
-        grayImg = cv2.GaussianBlur(grayImg, (15,15), 2, 2)
+        grayImg = cv2.GaussianBlur(grayImg, (15,15), 2, 2)#pre
 
-        thresh = cv2.getTrackbarPos("Min Threshold:", "A")
+        thresh = cv2.getTrackbarPos("Min Threshold:", "A")#pre
 
-        canny_output = cv2.Canny(grayImg, thresh, thresh *3, 3);
+        canny_output = cv2.Canny(grayImg, thresh, thresh *3, 3);#pre
 
         im2, contours, hierarchy = cv2.findContours(canny_output, cv2.RETR_TREE,\
-            cv2.CHAIN_APPROX_SIMPLE)
+            cv2.CHAIN_APPROX_SIMPLE) #pre-processor
+   
+
+    def processImage(self, img1):       #search for squares in img1, compares content of square with img2
+        #cv2.imshow('main', img1)
         
         for i in range(len(contours)):
             approxRect = cv2.approxPolyDP(contours[i], cv2.arcLength(contours[i], True) * 0.05, True)
