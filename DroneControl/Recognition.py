@@ -8,14 +8,15 @@ class Recognition(object):
         self.timestamp = None
         self.preProcessing = None
         self.processedImage = None
+        self.NewCorrectedImage = None
         self.cam = camera
 
         self.processThread = Thread(target = self.process)
 
-    def start(self):
+    def start(self): #starting the thread
         self.processThread.start()
 
-    def process(self):
+    def process(self): #starting the recoginition process
         while self.cam.image is None: pass
         while True:
             processed = self.processImage(self.cam.image)
@@ -23,7 +24,7 @@ class Recognition(object):
                 self.processedImage = processed
                 self.timestamp = time()
 
-    def _sortCorners(self, corners, center):
+    def _sortCorners(self, corners, center): 
         top = []
         bot = []
         for i in range(len(corners)):
@@ -49,7 +50,7 @@ class Recognition(object):
 
         return [tl, tr, br, bl]
 
-    def compareImage(self, img1, img2):
+    def compareImage(self, img1, img2): # vergelijk de afbeeldingen
         minDiff = 12000
 
         diffImg = cv2.bitwise_xor(img1, img2)
@@ -61,7 +62,7 @@ class Recognition(object):
         else:
             return diff
 
-    def preProcessing(self):
+    def preProcessing(self): #Pre-Processing onderdelen
         img1 = self.cam.read()
         grayImg = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)                #returns amount of white pixels Pre
     
@@ -86,7 +87,7 @@ class Recognition(object):
                 area = cv2.contourArea(contours[i])
                 if area > 10000:
                     corners = [tuple()]*4
-                    for j in range(4):
+                    for j in range(4): #apparte functie voor onderstaand
                         vertex = tuple(approxRect[j][0])
                         corners[j] = vertex
 
@@ -107,6 +108,7 @@ class Recognition(object):
                     if type(corners) == int:
                         continue
 
+    def NewCorrectedImage(self, img1):
                     dst = numpy.array([(0,0),
                                       (195, 0),
                                       (195, 271),
