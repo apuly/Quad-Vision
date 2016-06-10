@@ -24,7 +24,7 @@ class Recognition(object):
                 self.processedImage = processed
                 self.timestamp = time()
 
-    def _sortCorners(self, corners, center): 
+    def _sortCorners(self, corners, center): #sorteer de corners(hoeken) 
         top = []
         bot = []
         for i in range(len(corners)):
@@ -74,8 +74,23 @@ class Recognition(object):
 
         im2, contours, hierarchy = cv2.findContours(canny_output, cv2.RETR_TREE,\
             cv2.CHAIN_APPROX_SIMPLE) #pre-processor
-   
 
+    def getCorner(self, approxRect): #zoeken naar vierkanten en haalt de corners eruit
+        corners = [tuple()]*4
+        for j in range(4): 
+            vertex = tuple(approxRect[j][0])
+            corners[j] = vertex
+
+            vertex = tuple(approxRect[j][0])
+            corners[j] = vertex
+
+            vertex = tuple(approxRect[j][0])
+            corners[j] = vertex
+
+            vertex = tuple(approxRect[j][0])
+            corners[j] = vertex
+        return corners 
+    
     def processImage(self, img1):       #search for squares in img1, compares content of square with img2
         #cv2.imshow('main', img1)
         
@@ -86,20 +101,7 @@ class Recognition(object):
 
                 area = cv2.contourArea(contours[i])
                 if area > 10000:
-                    corners = [tuple()]*4
-                    for j in range(4): #apparte functie voor onderstaand
-                        vertex = tuple(approxRect[j][0])
-                        corners[j] = vertex
-
-                        vertex = tuple(approxRect[j][0])
-                        corners[j] = vertex
-
-                        vertex = tuple(approxRect[j][0])
-                        corners[j] = vertex
-
-                        vertex = tuple(approxRect[j][0])
-                        corners[j] = vertex
-
+                    corners = self.getCorner(approxRect)
                     mu = cv2.moments(grayImg, False)
 
                     if mu['m00'] == 0.0:
@@ -108,29 +110,35 @@ class Recognition(object):
                     if type(corners) == int:
                         continue
 
-    def NewCorrectedImage(self, img1):
-                    dst = numpy.array([(0,0),
-                                      (195, 0),
-                                      (195, 271),
-                                      (0, 271)],
-                                      numpy.float32)
+    def newCorrectedImage(self, img1):
+        
+        dst = numpy.array([(0,0),
+                        (195, 0),
+                        (195, 271),
+                        (0, 271)],
+                        numpy.float32)
 
-                    src = numpy.array(corners, numpy.float32)
+        src = numpy.array(corners, numpy.float32)
 
                 
-                    transmtx = cv2.getPerspectiveTransform(src, dst)
+        transmtx = cv2.getPerspectiveTransform(src, dst)
 
-                    correctedImg = cv2.warpPerspective(img1, transmtx, (271, 195))
+        correctedImg = cv2.warpPerspective(img1, transmtx, (271, 195))
+        return correctedImg
 
-                    correctedImgBin = cv2.cvtColor(correctedImg, cv2.COLOR_RGB2GRAY)
-                    new_image = correctedImgBin.copy()
+    def makeItGray(self):                        #spelen met de zwart en wit waarde
+        correctedImgBin = cv2.cvtColor(correctedImg, cv2.COLOR_RGB2GRAY)
+        new_image = correctedImgBin.copy()
 
-                    correctedImgBin = cv2.threshold(correctedImgBin, 140, 255, 0)
-
-                    min, max = cv2.minMaxLoc(new_image)[:2]
-                    medVal = (max-min)//2
-                    _, new_image = cv2.threshold(new_image, medVal, 255, 0)
-
-                    return new_image
-                    
+        correctedImgBin = cv2.threshold(correctedImgBin, 140, 255, 0)
+        return correctedImgBin
                
+    def new(self):
+        min, max = cv2.minMaxLoc(new_image)[:2]
+        medVal = (max-min)//2
+        _, new_image = cv2.threshold(new_image, medVal, 255, 0)
+                    
+        return new_image
+                    
+
+
