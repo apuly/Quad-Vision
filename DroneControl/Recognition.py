@@ -64,16 +64,16 @@ class Recognition(object):
 
     def preProcessing(self): #Pre-Processing onderdelen
         img1 = self.cam.read()
-        grayImg = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)                #returns amount of white pixels Pre
+        grayImg = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)             #maakt afbeelding zwart wit  
     
-        grayImg = cv2.GaussianBlur(grayImg, (15,15), 2, 2)#pre
+        grayImg = cv2.GaussianBlur(grayImg, (15,15), 2, 2)			#blur ++
 
-        thresh = cv2.getTrackbarPos("Min Threshold:", "A")#pre
+        thresh = cv2.getTrackbarPos("Min Threshold:", "A")			#geeft de posietie van trackbar Min Threshold
 
-        canny_output = cv2.Canny(grayImg, thresh, thresh *3, 3);#pre
+        canny_output = cv2.Canny(grayImg, thresh, thresh *3, 3);	# detecteerd de randen 
 
         im2, contours, hierarchy = cv2.findContours(canny_output, cv2.RETR_TREE,\
-            cv2.CHAIN_APPROX_SIMPLE) #pre-processor
+            cv2.CHAIN_APPROX_SIMPLE) #pre-processor # deze is heel zwaar (note)
 
     def getCorner(self, approxRect): #zoeken naar vierkanten en haalt de corners eruit
         corners = [tuple()]*4
@@ -99,7 +99,7 @@ class Recognition(object):
             #print(len(approxRect))
             if len(approxRect) == 4:
 
-                area = cv2.contourArea(contours[i])
+                area = cv2.contourArea(contours[i])   #returns amount of white pixels 
                 if area > 10000:
                     corners = self.getCorner(approxRect)
                     mu = cv2.moments(grayImg, False)
