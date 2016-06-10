@@ -128,16 +128,16 @@ class Controller(object):
         self.currentCommand = None
         self.board = MultiWii('/dev/ttyUSB0')
 
-        self.loadActions()
-        self.loadCommands()
-        self.loadSymbols()
+        #self.loadActions()
+        #self.loadCommands()
+        #self.loadSymbols()
         self.Load.loadAction()
         self.Load.loadCommands()
         self.Load.loadSymbols()
 
         time.sleep(1)
     
-    def start(self):
+    def start(self): #starten van de threading en processen
         self.commandThread = threading.Thread(target = self.commandHandler)
         self.symbolThread = threading.Thread(target = self.compareSymbols)
         self.symbolThread.start()
@@ -151,7 +151,7 @@ class Controller(object):
             time.sleep(0.1)
             
         
-    def compareSymbols(self):
+    def compareSymbols(self): #vergelijken van images
         while self.recog.processedImage is None:
             pass
         oldTimestamp = None
@@ -164,7 +164,7 @@ class Controller(object):
                 detectedSymbol = self.symbolList[index]
                 self.currentCommand = detectedSymbol.command
             
-    def commandHandler(self):
+    def commandHandler(self): #afhandeling van commando's. 
         while self.currentCommand is None: pass
         
         previousCommand = None
