@@ -119,8 +119,7 @@ class Recognition(object):
                         numpy.float32)
 
         src = numpy.array(corners, numpy.float32)
-
-                
+ 
         transmtx = cv2.getPerspectiveTransform(src, dst)
 
         correctedImg = cv2.warpPerspective(img1, transmtx, (271, 195))
