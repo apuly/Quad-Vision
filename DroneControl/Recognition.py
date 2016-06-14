@@ -66,9 +66,9 @@ class Recognition(object):
         img1 = self.cam.read()
         grayImg = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)                #returns amount of white pixels Pre
     
-        grayImg = cv2.GaussianBlur(grayImg, (15,15), 2, 2)#pre
+        grayImg = cv2.GaussianBlur(grayImg, (15,15), 2, 2)#Grijs blur
 
-        thresh = cv2.getTrackbarPos("Min Threshold:", "A")#pre
+        thresh = cv2.getTrackbarPos("Min Threshold:", "A")#Threshold
 
         canny_output = cv2.Canny(grayImg, thresh, thresh *3, 3);#pre
 
